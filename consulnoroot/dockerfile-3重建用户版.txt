@@ -1,0 +1,15 @@
+FROM consul:1.2.2
+
+COPY docker-entrypoint.sh /tmp/docker-entrypoint.sh
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+ && apk add shadow  \
+ && addgroup -g 1004 default \
+ && adduser -u 1004 -G default -S default \
+ && chown default:default /tmp/docker-entrypoint.sh \
+ && chmod +x /tmp/docker-entrypoint.sh \
+ && chown -R default:default /consul
+
+
+USER default
+ENTRYPOINT ["/tmp/docker-entrypoint.sh"]
+CMD ["agent", "-dev", "-client", "0.0.0.0"]
